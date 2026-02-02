@@ -17,7 +17,7 @@
       font-family: Georgia, "Times New Roman", serif;
     }
 
-    /* Encadré blanc */
+    /* Encadré blanc (carte) */
     .card{
       width:360px;
       max-width:92vw;
@@ -26,10 +26,11 @@
       padding:34px 24px 26px;
       text-align:center;
       box-shadow:0 18px 40px rgba(0,0,0,0.18);
-      position:relative;
+      position:relative; /* IMPORTANT : le No bouge à l’intérieur */
+      overflow:hidden;   /* IMPORTANT : le No ne sort jamais */
     }
 
-    /* Pengu (taille raisonnable) */
+    /* Pengu */
     .pengu{
       width:260px;
       max-width:80%;
@@ -53,17 +54,16 @@
       opacity:0.8;
     }
 
-    /* Zone des boutons (le NO bouge ici, donc reste dans l’encadré blanc) */
+    /* Zone du bouton YES (centrée sous le texte) */
     #arena{
       position:relative;
-      width:320px;        /* distance Yes/No comme ton modèle */
-      max-width:100%;
-      height:74px;        /* zone de mouvement du No */
+      width:320px;      /* distance comme ton modèle */
+      height:74px;
       margin:0 auto;
     }
 
-    /* Taille FIXE des 2 boutons => ne change jamais */
-    #arena button{
+    /* Taille FIXE des boutons => ne change jamais */
+    button{
       width:110px;
       height:44px;
       border:none;
@@ -78,7 +78,7 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* YES vert, fixe à gauche */
+    /* YES vert (fixe à gauche dans l’arène) */
     #yesBtn{
       background:#2ecc71;
       position:absolute;
@@ -87,20 +87,19 @@
       z-index:2;
     }
 
-    /* NO rouge, commence à droite */
+    /* NO rouge : libre dans la carte */
     #noBtn{
       background:#e74c3c;
-      position:absolute;
-      left:calc(100% - 110px);
-      top:0;
-      z-index:1;
+      position:absolute; /* bouge dans .card */
+      z-index:5;
+      left: calc(50% + 80px);  /* départ à droite du YES */
+      top: 285px;              /* départ sous les textes (ajusté) */
     }
   </style>
 </head>
 
 <body>
   <div class="card">
-    <!-- Ton fichier dans le repo : pengu.gif.gif -->
     <img class="pengu" src="pengu.gif.gif" alt="Pengu" />
 
     <h1>Amna veux-tu être ma Valentine ?</h1>
@@ -109,26 +108,35 @@
 
     <div id="arena">
       <button id="yesBtn">Yes</button>
-      <button id="noBtn">No</button>
     </div>
+
+    <button id="noBtn">No</button>
   </div>
 
   <script>
-    const arena = document.getElementById("arena");
+    const card  = document.querySelector(".card");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn  = document.getElementById("noBtn");
 
-    // NO fuit uniquement dans l'arène, sans passer sur YES
-    function moveNo(){
-      const maxX = arena.clientWidth  - noBtn.offsetWidth;
-      const maxY = arena.clientHeight - noBtn.offsetHeight;
+    // Place NO au départ à droite du YES (même niveau)
+    function placeNoStart(){
+      const arena = document.getElementById("arena");
+      const arenaTop = arena.offsetTop;
 
+      noBtn.style.left = (yesBtn.offsetLeft + yesBtn.offsetWidth + 100) + "px";
+      noBtn.style.top  = arenaTop + "px";
+    }
+
+    function moveNo(){
+      const maxX = card.clientWidth  - noBtn.offsetWidth;
+      const maxY = card.clientHeight - noBtn.offsetHeight;
+
+      // zone interdite autour du YES (pour éviter qu'il recouvre Yes)
       const yesX = yesBtn.offsetLeft;
       const yesY = yesBtn.offsetTop;
       const yesW = yesBtn.offsetWidth;
       const yesH = yesBtn.offsetHeight;
-
-      const safePadding = 18; // augmente si tu veux plus d'espace autour du YES
+      const safePadding = 18;
 
       let x, y, ok = false;
 
@@ -158,6 +166,8 @@
       noBtn.style.left = x + "px";
       noBtn.style.top  = y + "px";
     }
+
+    placeNoStart();
 
     // Souris
     noBtn.addEventListener("mouseenter", moveNo);
