@@ -24,8 +24,8 @@
       padding:34px 24px 26px;
       text-align:center;
       box-shadow:0 18px 40px rgba(0,0,0,0.18);
-      position:relative;  /* No bouge à l’intérieur */
-      overflow:hidden;    /* No ne sort jamais */
+      position:relative;   /* No bouge dedans */
+      overflow:hidden;     /* No ne sort jamais */
     }
 
     .pengu{
@@ -49,15 +49,18 @@
       opacity:0.8;
     }
 
-    /* Arène = ligne des boutons au départ (comme ton modèle) */
+    /* Ligne des boutons au départ (comme ton modèle) */
     #arena{
-      position:relative;
       width:320px;
       height:74px;
       margin:0 auto;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      position:relative;
     }
 
-    /* Taille FIXE des boutons */
+    /* Taille FIXE des boutons (ne change jamais) */
     button{
       width:110px;
       height:44px;
@@ -73,35 +76,29 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* YES à gauche */
     #yesBtn{
       background:#2ecc71;
-      position:absolute;
-      left:0;
-      top:0;
+      position:relative; /* reste normal */
       z-index:2;
     }
 
-    /* NO à droite AU DÉPART (même ligne que Yes) */
+    /* IMPORTANT : No est NORMAL au départ (effet surprise) */
     #noBtn{
       background:#e74c3c;
-      position:absolute;
-      left:calc(100% - 110px);  /* tout à droite de l'arène */
-      top:0;
-      z-index:5;
+      position:relative; /* au départ comme le modèle */
+      z-index:2;
     }
   </style>
 </head>
 
 <body>
-  <div class="card">
+  <div class="card" id="card">
     <img class="pengu" src="pengu.gif.gif" alt="Pengu" />
 
     <h1>Amna veux-tu être ma Valentine ?</h1>
 
     <p class="hint">Essaye le “No” si tu l’oses 😈</p>
 
-    <!-- YES + NO sur la même ligne au chargement -->
     <div id="arena">
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
@@ -109,20 +106,47 @@
   </div>
 
   <script>
-    const card   = document.querySelector(".card");
+    const card  = document.getElementById("card");
+    const arena = document.getElementById("arena");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn  = document.getElementById("noBtn");
 
+    let detached = false; // surprise: No "normal" au départ
+
+    function detachNoToCardOnce(){
+      if (detached) return;
+      detached = true;
+
+      // position actuelle du No sur l'écran
+      const nRect = noBtn.getBoundingClientRect();
+      const cRect = card.getBoundingClientRect();
+
+      // on sort le No de l'arène et on le met dans la carte
+      card.appendChild(noBtn);
+
+      // il devient absolu DANS la carte, à la même place qu'avant
+      noBtn.style.position = "absolute";
+      noBtn.style.left = (nRect.left - cRect.left) + "px";
+      noBtn.style.top  = (nRect.top  - cRect.top ) + "px";
+      noBtn.style.zIndex = "5";
+    }
+
     function moveNo(){
-      // limites DANS la carte
+      // dès la 1ère tentative : il devient fuyard dans la carte
+      detachNoToCardOnce();
+
       const maxX = card.clientWidth  - noBtn.offsetWidth;
       const maxY = card.clientHeight - noBtn.offsetHeight;
 
-      // zone interdite autour du YES
-      const yesX = yesBtn.offsetLeft;
-      const yesY = yesBtn.offsetTop;
-      const yesW = yesBtn.offsetWidth;
-      const yesH = yesBtn.offsetHeight;
+      // zone interdite autour du YES (pour ne pas marcher dessus)
+      const yRect = yesBtn.getBoundingClientRect();
+      const cRect = card.getBoundingClientRect();
+
+      const yesX = yRect.left - cRect.left;
+      const yesY = yRect.top  - cRect.top;
+      const yesW = yRect.width;
+      const yesH = yRect.height;
+
       const safePadding = 18;
 
       let x, y, ok = false;
@@ -150,19 +174,14 @@
         ok = !intersects;
       }
 
-      /* IMPORTANT :
-         Dès qu’il fuit, on le positionne dans la carte (pas dans l’arène)
-         pour qu’il puisse se balader partout DANS l’encadré blanc.
-      */
-      noBtn.style.position = "absolute";
       noBtn.style.left = x + "px";
       noBtn.style.top  = y + "px";
     }
 
-    // Souris
+    // Souris : fuite à l'infini
     noBtn.addEventListener("mouseenter", moveNo);
 
-    // Tactile (empêche le vrai clic)
+    // Tactile : fuite à l'infini (et empêche le vrai clic)
     noBtn.addEventListener("touchstart", (e)=>{
       e.preventDefault();
       moveNo();
