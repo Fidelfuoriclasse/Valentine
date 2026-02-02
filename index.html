@@ -26,8 +26,8 @@
       padding:34px 24px 26px;
       text-align:center;
       box-shadow:0 18px 40px rgba(0,0,0,0.18);
-      position:relative;   /* No bouge dedans */
-      overflow:hidden;     /* No ne sort jamais */
+      position:relative;
+      overflow:hidden;
       transition: opacity 520ms ease, transform 520ms ease;
     }
 
@@ -57,7 +57,7 @@
       opacity:0.8;
     }
 
-    /* ligne de départ des boutons */
+    /* Ligne des boutons */
     #arena{
       width:320px;
       height:74px;
@@ -103,7 +103,7 @@
       pointer-events:auto;
     }
 
-    /* Étoiles : 2 couches + scintillement */
+    /* Étoiles */
     .stars, .stars2{
       position:absolute;
       left:0; top:0;
@@ -116,7 +116,6 @@
         96vw 5vh #fff, 8vw 55vh #fff, 22vw 8vh #fff, 41vw 88vh #fff, 57vw 12vh #fff,
         73vw 92vh #fff, 88vw 48vh #fff, 95vw 66vh #fff, 4vw 38vh #fff, 33vw 48vh #fff,
         51vw 72vh #fff, 69vw 36vh #fff, 81vw 64vh #fff, 14vw 42vh #fff, 27vw 78vh #fff;
-
       animation:
         starsUp 16s linear infinite,
         twinkle 2.8s ease-in-out infinite alternate;
@@ -124,7 +123,8 @@
     }
 
     .stars2{
-      width:1px; height:1px;
+      width:1px;
+      height:1px;
       opacity:0.55;
       filter: blur(0.2px);
       animation-duration: 22s, 3.6s;
@@ -140,7 +140,7 @@
       to   { opacity:1; }
     }
 
-    /* Texte centré */
+    /* Texte final */
     #finalText{
       position:relative;
       z-index:5;
@@ -164,10 +164,28 @@
     #finalText strong{
       font-weight:800;
     }
+
+    /* ===== ADAPTATION MOBILE UNIQUEMENT ===== */
+    @media (max-width: 480px){
+      #scene2{
+        align-items:flex-start;
+        overflow-y:auto;
+        padding:28px 0;
+      }
+
+      #finalText{
+        font-size:16px;
+        line-height:1.75;
+        width:min(820px, 92vw);
+        padding:0 14px;
+        margin:0 auto;
+      }
+    }
   </style>
 </head>
 
 <body>
+
   <!-- SCÈNE 1 -->
   <div class="card" id="card">
     <img class="pengu" src="pengu.gif.gif" alt="Pengu" />
@@ -182,7 +200,7 @@
     </div>
   </div>
 
-  <!-- SCÈNE 2 : nuit + étoiles + texte -->
+  <!-- SCÈNE 2 -->
   <div id="scene2">
     <div class="stars"></div>
     <div class="stars2"></div>
@@ -217,14 +235,14 @@
   </div>
 
   <script>
-    // ===== NO : effet surprise -> normal au départ, puis fuit à l’infini DANS la carte =====
+    // ===== NO : effet surprise puis fuite infinie =====
     const card  = document.getElementById("card");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn  = document.getElementById("noBtn");
 
     let detached = false;
 
-    function detachNoToCardOnce(){
+    function detachNoOnce(){
       if(detached) return;
       detached = true;
 
@@ -240,68 +258,36 @@
     }
 
     function moveNo(){
-      detachNoToCardOnce();
+      detachNoOnce();
 
       const maxX = card.clientWidth  - noBtn.offsetWidth;
       const maxY = card.clientHeight - noBtn.offsetHeight;
 
-      // évite une zone autour du YES
-      const yRect = yesBtn.getBoundingClientRect();
-      const cRect = card.getBoundingClientRect();
-      const yesX = yRect.left - cRect.left;
-      const yesY = yRect.top  - cRect.top;
-      const yesW = yRect.width;
-      const yesH = yRect.height;
-
-      const safePadding = 18;
-      let x, y, ok = false;
-
-      while(!ok){
-        x = Math.random() * maxX;
-        y = Math.random() * maxY;
-
-        const noLeft   = x;
-        const noRight  = x + noBtn.offsetWidth;
-        const noTop    = y;
-        const noBottom = y + noBtn.offsetHeight;
-
-        const badLeft   = yesX - safePadding;
-        const badRight  = yesX + yesW + safePadding;
-        const badTop    = yesY - safePadding;
-        const badBottom = yesY + yesH + safePadding;
-
-        const intersects =
-          noLeft < badRight &&
-          noRight > badLeft &&
-          noTop < badBottom &&
-          noBottom > badTop;
-
-        ok = !intersects;
-      }
+      let x = Math.random() * maxX;
+      let y = Math.random() * maxY;
 
       noBtn.style.left = x + "px";
       noBtn.style.top  = y + "px";
     }
 
     noBtn.addEventListener("mouseenter", moveNo);
-    noBtn.addEventListener("touchstart", (e)=>{
+    noBtn.addEventListener("touchstart", e=>{
       e.preventDefault();
       moveNo();
     }, { passive:false });
 
-    // ===== YES : transition ciné (même page) vers scène nuit =====
+    // ===== YES : transition vers nuit =====
     const scene2 = document.getElementById("scene2");
 
     yesBtn.addEventListener("click", ()=>{
-      // on fige les interactions du no
       noBtn.style.pointerEvents = "none";
-
-      // fondu de la carte puis apparition de la nuit
       card.classList.add("fadeOut");
+
       setTimeout(()=>{
         scene2.classList.add("show");
       }, 520);
     });
   </script>
+
 </body>
 </html>
