@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Amna 💖</title>
+  <title>Amna</title>
 
   <style>
+    /* ===== SCÈNE 1 : fond rose + carte ===== */
     body{
       margin:0;
       min-height:100vh;
@@ -14,6 +15,7 @@
       align-items:center;
       background:pink;
       font-family: Georgia, "Times New Roman", serif;
+      overflow:hidden;
     }
 
     .card{
@@ -26,6 +28,13 @@
       box-shadow:0 18px 40px rgba(0,0,0,0.18);
       position:relative;   /* No bouge dedans */
       overflow:hidden;     /* No ne sort jamais */
+      transition: opacity 520ms ease, transform 520ms ease;
+    }
+
+    .card.fadeOut{
+      opacity:0;
+      transform: translateY(10px);
+      pointer-events:none;
     }
 
     .pengu{
@@ -45,11 +54,10 @@
     .hint{
       margin:0 0 18px;
       font-size:14px;
-      font-weight:400;
       opacity:0.8;
     }
 
-    /* Ligne des boutons au départ (comme ton modèle) */
+    /* ligne de départ des boutons */
     #arena{
       width:320px;
       height:74px;
@@ -60,38 +68,107 @@
       position:relative;
     }
 
-    /* Taille FIXE des boutons (ne change jamais) */
     button{
       width:110px;
       height:44px;
       border:none;
       border-radius:10px;
       cursor:pointer;
-      padding:0;
-      line-height:44px;
       font-size:16px;
       color:white;
-      box-sizing:border-box;
       user-select:none;
       -webkit-tap-highlight-color: transparent;
     }
 
-    #yesBtn{
-      background:#2ecc71;
-      position:relative; /* reste normal */
-      z-index:2;
+    #yesBtn{ background:#2ecc71; }
+    #noBtn{ background:#e74c3c; }
+
+    /* ===== SCÈNE 2 : nuit + étoiles ===== */
+    #scene2{
+      position:fixed;
+      inset:0;
+      background:
+        radial-gradient(1200px 700px at 50% 120%, #0b2b4a 0%, #061626 55%, #020610 100%);
+      opacity:0;
+      pointer-events:none;
+      transition: opacity 800ms ease;
+      overflow:hidden;
+      display:flex;
+      justify-content:center;
+      align-items:center;
     }
 
-    /* IMPORTANT : No est NORMAL au départ (effet surprise) */
-    #noBtn{
-      background:#e74c3c;
-      position:relative; /* au départ comme le modèle */
-      z-index:2;
+    #scene2.show{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    /* Étoiles : 2 couches + scintillement */
+    .stars, .stars2{
+      position:absolute;
+      left:0; top:0;
+      width:2px; height:2px;
+      background:transparent;
+      box-shadow:
+        6vw 90vh #fff, 12vw 20vh #fff, 18vw 70vh #fff, 24vw 35vh #fff, 30vw 85vh #fff,
+        36vw 10vh #fff, 42vw 60vh #fff, 48vw 25vh #fff, 54vw 95vh #fff, 60vw 45vh #fff,
+        66vw 75vh #fff, 72vw 15vh #fff, 78vw 55vh #fff, 84vw 30vh #fff, 90vw 80vh #fff,
+        96vw 5vh #fff, 8vw 55vh #fff, 22vw 8vh #fff, 41vw 88vh #fff, 57vw 12vh #fff,
+        73vw 92vh #fff, 88vw 48vh #fff, 95vw 66vh #fff, 4vw 38vh #fff, 33vw 48vh #fff,
+        51vw 72vh #fff, 69vw 36vh #fff, 81vw 64vh #fff, 14vw 42vh #fff, 27vw 78vh #fff;
+
+      animation:
+        starsUp 16s linear infinite,
+        twinkle 2.8s ease-in-out infinite alternate;
+      opacity:0.9;
+    }
+
+    .stars2{
+      width:1px; height:1px;
+      opacity:0.55;
+      filter: blur(0.2px);
+      animation-duration: 22s, 3.6s;
+    }
+
+    @keyframes starsUp{
+      from { transform: translateY(0); }
+      to   { transform: translateY(-110vh); }
+    }
+
+    @keyframes twinkle{
+      from { opacity:0.35; }
+      to   { opacity:1; }
+    }
+
+    /* Texte centré */
+    #finalText{
+      position:relative;
+      z-index:5;
+      width:min(860px, 88vw);
+      color:#eaf2ff;
+      text-align:center;
+      font-size:20px;
+      line-height:1.65;
+      text-shadow:0 10px 30px rgba(0,0,0,0.45);
+      padding: 0 10px;
+      opacity:0;
+      transform: translateY(10px);
+      transition: opacity 900ms ease, transform 900ms ease;
+    }
+
+    #scene2.show #finalText{
+      opacity:1;
+      transform: translateY(0);
+    }
+
+    #finalText strong{
+      font-weight:800;
     }
   </style>
 </head>
 
 <body>
+  <!-- SCÈNE 1 -->
   <div class="card" id="card">
     <img class="pengu" src="pengu.gif.gif" alt="Pengu" />
 
@@ -105,26 +182,57 @@
     </div>
   </div>
 
+  <!-- SCÈNE 2 : nuit + étoiles + texte -->
+  <div id="scene2">
+    <div class="stars"></div>
+    <div class="stars2"></div>
+
+    <div id="finalText">
+      Coucou Jaan,<br><br>
+
+      Je sais très bien que tu ne seras pas ma Valentine cette année.
+      Je voulais juste te dire que je t’attendrai, toute ma vie
+      si c’est l’épreuve que l’Éternel m’a donnée…<br><br>
+
+      En tout cas j’espère que tu trouveras un beau Valentin,
+      qui sera gentil, respectueux, qui te fera rire et te rendra heureuse.
+      Trouve quelqu’un qui t’aimera plus que ce que je t’aime.<br><br>
+
+      Et en attendant je t’attendrai,
+      car j’ai tout simplement décidé que tu seras mon dernier et ultime amour.
+      Tu es le dernier rêve que je n’abandonnerai jamais Amna Ellahi.<br><br>
+
+      Nos âmes ont été créées ensemble.
+      Et si nous ne nous réunissons pas dans cette vie,
+      nos âmes se retrouveront après cette vie,
+      j’en suis convaincu, même si j’aurais voulu vivre dans ton cœur
+      durant cette vie-là.<br><br>
+
+      Prends soin de toi Jaan.<br><br>
+
+      <strong>
+        Je t’aimais, Je t’aime et Je t’aimerai tant que j’existerai.
+      </strong>
+    </div>
+  </div>
+
   <script>
+    // ===== NO : effet surprise -> normal au départ, puis fuit à l’infini DANS la carte =====
     const card  = document.getElementById("card");
-    const arena = document.getElementById("arena");
     const yesBtn = document.getElementById("yesBtn");
     const noBtn  = document.getElementById("noBtn");
 
-    let detached = false; // surprise: No "normal" au départ
+    let detached = false;
 
     function detachNoToCardOnce(){
-      if (detached) return;
+      if(detached) return;
       detached = true;
 
-      // position actuelle du No sur l'écran
       const nRect = noBtn.getBoundingClientRect();
       const cRect = card.getBoundingClientRect();
 
-      // on sort le No de l'arène et on le met dans la carte
       card.appendChild(noBtn);
 
-      // il devient absolu DANS la carte, à la même place qu'avant
       noBtn.style.position = "absolute";
       noBtn.style.left = (nRect.left - cRect.left) + "px";
       noBtn.style.top  = (nRect.top  - cRect.top ) + "px";
@@ -132,23 +240,20 @@
     }
 
     function moveNo(){
-      // dès la 1ère tentative : il devient fuyard dans la carte
       detachNoToCardOnce();
 
       const maxX = card.clientWidth  - noBtn.offsetWidth;
       const maxY = card.clientHeight - noBtn.offsetHeight;
 
-      // zone interdite autour du YES (pour ne pas marcher dessus)
+      // évite une zone autour du YES
       const yRect = yesBtn.getBoundingClientRect();
       const cRect = card.getBoundingClientRect();
-
       const yesX = yRect.left - cRect.left;
       const yesY = yRect.top  - cRect.top;
       const yesW = yRect.width;
       const yesH = yRect.height;
 
       const safePadding = 18;
-
       let x, y, ok = false;
 
       while(!ok){
@@ -178,14 +283,25 @@
       noBtn.style.top  = y + "px";
     }
 
-    // Souris : fuite à l'infini
     noBtn.addEventListener("mouseenter", moveNo);
-
-    // Tactile : fuite à l'infini (et empêche le vrai clic)
     noBtn.addEventListener("touchstart", (e)=>{
       e.preventDefault();
       moveNo();
     }, { passive:false });
+
+    // ===== YES : transition ciné (même page) vers scène nuit =====
+    const scene2 = document.getElementById("scene2");
+
+    yesBtn.addEventListener("click", ()=>{
+      // on fige les interactions du no
+      noBtn.style.pointerEvents = "none";
+
+      // fondu de la carte puis apparition de la nuit
+      card.classList.add("fadeOut");
+      setTimeout(()=>{
+        scene2.classList.add("show");
+      }, 520);
+    });
   </script>
 </body>
 </html>
