@@ -1,119 +1,172 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Amna 💖</title>
+
+  <style>
+    /* Fond rose */
+    body{
+      margin:0;
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      background:pink;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    /* Encadré blanc */
+    .card{
+      width:360px;
+      max-width:92vw;
+      background:rgba(255,255,255,0.92);
+      border-radius:20px;
+      padding:34px 24px 26px;
+      text-align:center;
+      box-shadow:0 18px 40px rgba(0,0,0,0.18);
+      position:relative;
+    }
+
+    /* Pengu (taille raisonnable) */
+    .pengu{
+      width:260px;
+      max-width:80%;
+      display:block;
+      margin:0 auto 18px;
+    }
+
+    /* Titre */
+    h1{
+      margin:0 0 10px;
+      font-size:28px;
+      font-weight:800;
+      line-height:1.1;
+    }
+
+    /* Petite phrase */
+    .hint{
+      margin:0 0 18px;
+      font-size:14px;
+      font-weight:400;
+      opacity:0.8;
+    }
+
+    /* Zone des boutons (le NO bouge ici, donc reste dans l’encadré blanc) */
+    #arena{
+      position:relative;
+      width:320px;        /* distance Yes/No comme ton modèle */
+      max-width:100%;
+      height:74px;        /* zone de mouvement du No */
+      margin:0 auto;
+    }
+
+    /* Taille FIXE des 2 boutons => ne change jamais */
+    #arena button{
+      width:110px;
+      height:44px;
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      padding:0;
+      line-height:44px;
+      font-size:16px;
+      color:white;
+      box-sizing:border-box;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* YES vert, fixe à gauche */
+    #yesBtn{
+      background:#2ecc71;
+      position:absolute;
+      left:0;
+      top:0;
+      z-index:2;
+    }
+
+    /* NO rouge, commence à droite */
+    #noBtn{
+      background:#e74c3c;
+      position:absolute;
+      left:calc(100% - 110px);
+      top:0;
+      z-index:1;
+    }
+  </style>
 </head>
 
 <body>
-  <div id="container">
-    <img src="pengu.gif.gif" alt="Pengu">
+  <div class="card">
+    <!-- Ton fichier dans le repo : pengu.gif.gif -->
+    <img class="pengu" src="pengu.gif.gif" alt="Pengu" />
 
     <h1>Amna veux-tu être ma Valentine ?</h1>
 
-    <p class="tease">Essaye le “No” si tu l’oses 😈</p>
+    <p class="hint">Essaye le “No” si tu l’oses 😈</p>
 
-    <div class="buttons">
+    <div id="arena">
       <button id="yesBtn">Yes</button>
       <button id="noBtn">No</button>
     </div>
   </div>
 
   <script>
-    const noBtn = document.getElementById("noBtn");
+    const arena = document.getElementById("arena");
     const yesBtn = document.getElementById("yesBtn");
-    const container = document.getElementById("container");
+    const noBtn  = document.getElementById("noBtn");
 
-    function moveNo() {
-      const containerRect = container.getBoundingClientRect();
-      const yesRect = yesBtn.getBoundingClientRect();
+    // NO fuit uniquement dans l'arène, sans passer sur YES
+    function moveNo(){
+      const maxX = arena.clientWidth  - noBtn.offsetWidth;
+      const maxY = arena.clientHeight - noBtn.offsetHeight;
 
-      let x, y;
-      let safe = false;
+      const yesX = yesBtn.offsetLeft;
+      const yesY = yesBtn.offsetTop;
+      const yesW = yesBtn.offsetWidth;
+      const yesH = yesBtn.offsetHeight;
 
-      while (!safe) {
-        x = Math.random() * (containerRect.width - noBtn.offsetWidth);
-        y = Math.random() * (containerRect.height - noBtn.offsetHeight);
+      const safePadding = 18; // augmente si tu veux plus d'espace autour du YES
 
-        const noLeft = containerRect.left + x;
-        const noTop = containerRect.top + y;
+      let x, y, ok = false;
 
-        safe =
-          noLeft + noBtn.offsetWidth < yesRect.left - 20 ||
-          noLeft > yesRect.right + 20 ||
-          noTop + noBtn.offsetHeight < yesRect.top - 20 ||
-          noTop > yesRect.bottom + 20;
+      while(!ok){
+        x = Math.random() * maxX;
+        y = Math.random() * maxY;
+
+        const noLeft   = x;
+        const noRight  = x + noBtn.offsetWidth;
+        const noTop    = y;
+        const noBottom = y + noBtn.offsetHeight;
+
+        const badLeft   = yesX - safePadding;
+        const badRight  = yesX + yesW + safePadding;
+        const badTop    = yesY - safePadding;
+        const badBottom = yesY + yesH + safePadding;
+
+        const intersects =
+          noLeft < badRight &&
+          noRight > badLeft &&
+          noTop < badBottom &&
+          noBottom > badTop;
+
+        ok = !intersects;
       }
 
       noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
+      noBtn.style.top  = y + "px";
     }
 
+    // Souris
     noBtn.addEventListener("mouseenter", moveNo);
-    noBtn.addEventListener("touchstart", moveNo);
+
+    // Tactile (empêche le “tap” réel)
+    noBtn.addEventListener("touchstart", (e)=>{
+      e.preventDefault();
+      moveNo();
+    }, { passive:false });
   </script>
-
-  <style>
-    body {
-      background: pink;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      font-family: serif;
-    }
-
-    #container {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
-      text-align: center;
-      position: relative;
-      width: 360px;
-    }
-
-    img {
-      width: 260px;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      margin-bottom: 10px;
-    }
-
-    .tease {
-      font-size: 14px;
-      opacity: 0.8;
-      margin-bottom: 30px;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      position: relative;
-      height: 60px;
-    }
-
-    button {
-      font-size: 18px;
-      padding: 10px 30px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      color: white;
-    }
-
-    #yesBtn {
-      background: #2ecc71;
-    }
-
-    #noBtn {
-      background: #e74c3c;
-      position: absolute;
-      right: 0;
-    }
-  </style>
 </body>
 </html>
