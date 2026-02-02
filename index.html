@@ -89,12 +89,11 @@
 
     /* NO rouge : libre dans la carte */
     #noBtn{
-      background:#e74c3c;
-      position:absolute; /* bouge dans .card */
-      z-index:5;
-      left: calc(50% + 80px);  /* départ à droite du YES */
-      top: 285px;              /* départ sous les textes (ajusté) */
-    }
+  background:#e74c3c;
+  position: relative;   /* 👈 IMPORTANT */
+  z-index:5;
+}
+    
   </style>
 </head>
 
