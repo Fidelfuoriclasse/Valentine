@@ -6,9 +6,44 @@
 </head>
 <body style="background:pink;display:flex;flex-direction:column;justify-content:flex-start;align-items:center;height:100vh;padding-top:80px;">
 
-  <img src="/Valentine/pengu.gif.gif" alt="Pengu love" style="width:320px;margin-bottom:20px;">
+  <img
+  src="pengu.gif.gif"
+  alt="Pengu"
+  style="width:380px;margin-bottom:20px;"
+>
 
-  <h1>Amna veux-tu être ma Valentine ?</h1>
+<h1 style="margin-bottom:30px;">
+  Amna veux-tu être ma Valentine ?
+</h1>
+
+<div style="display:flex;gap:20px;">
+  <button
+    id="yesBtn"
+    style="font-size:18px;padding:10px 25px;cursor:pointer;"
+  >
+    Yes
+  </button>
+
+  <button
+    id="noBtn"
+    style="font-size:18px;padding:10px 25px;position:relative;"
+  >
+    No
+  </button>
+</div>
+
+<script>
+  const noBtn = document.getElementById("noBtn");
+
+  function moveNo() {
+    const x = Math.random() * 300 - 150;
+    const y = Math.random() * 200 - 100;
+    noBtn.style.transform = `translate(${x}px, ${y}px)`;
+  }
+
+  noBtn.addEventListener("mouseenter", moveNo);
+  noBtn.addEventListener("touchstart", moveNo);
+</script>
 
 </body>
 </html>
